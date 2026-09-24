@@ -1,0 +1,21 @@
+.DS_Store
+/.build
+.swiftpm/
+Tests/VocalIsolationTests/*.mlpackage/
+
+# Core ML conversion lab: the scripts are committed, the artifacts are not.
+# The checkpoint is 2 GB and re-downloadable; _ref is a vendored reference
+# repo; models and audio are reproducible from the scripts beside them.
+Tools/_ref/
+Tools/*.ckpt
+Tools/*.mlpackage
+Tools/*.pt
+Tools/*.wav
+Tools/*.npy
+Tools/.venv/
+Tools/__pycache__/
+Tools/mel_band_roformer.mlpackage/
+
+# Model exports and upstream references are made locally
+Tools/exports/
+Tools/reference/

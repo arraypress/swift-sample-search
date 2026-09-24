@@ -1,0 +1,6 @@
+{
+ "logit_scale_audio": 1.027732253074646,
+ "logit_scale_text": 0.9948842525482178,
+ "max_tokens": 77,
+ "model": "laion/larger_clap_music"
+}
