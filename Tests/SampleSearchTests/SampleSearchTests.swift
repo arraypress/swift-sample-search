@@ -110,7 +110,7 @@ private struct ZeroShot: Decodable { let labels: [String]; let probabilities: [F
     @Test("round-trips entries and vectors through the file format")
     func roundTrip() throws {
         var index = SampleIndex(model: "test", dimension: 4)
-        let now = Date()
+        let now = Date(timeIntervalSince1970: 1_700_000_000.5)   // exactly representable, so the file round-trip is exact
         try index.upsert(.init(path: "/a.wav", seconds: 1, modified: now, size: 10), embedding: ClapEmbedder.normalised([1, 0, 0, 0]))
         try index.upsert(.init(path: "/b.wav", seconds: 2, modified: now, size: 20), embedding: ClapEmbedder.normalised([1, 1, 0, 0]))
         try index.upsert(.init(path: "/c.wav", seconds: 3, modified: now, size: 30), embedding: ClapEmbedder.normalised([0, 0, 1, 0]))

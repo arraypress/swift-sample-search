@@ -2,7 +2,7 @@
 
 On-device **CLAP** for Swift — a sound and a sentence each become a 512-number vector in one
 space, so a sample library can be searched by words, searched by example, and labelled from any
-list of phrases without training anything. LAION's `larger_clap_music` (Apache 2.0) runs on
+list of phrases without training anything. LAION's `larger_clap_general` (Apache 2.0) runs on
 Core AI; the log-mel front end, the RoBERTa tokenizer, the L2 normalisation and the on-disk
 index are Swift. Nothing leaves the machine.
 
@@ -24,13 +24,13 @@ SampleIndex.tags(for: kick, labels: labelVectors, logitScale: clap.logitScale)  
 
 ## What it is exactly
 
-The model is Hugging Face's `ClapModel` for `laion/larger_clap_music`: the HTSAT audio encoder
+The model is Hugging Face's `ClapModel` for `laion/larger_clap_general`: the HTSAT audio encoder
 (68 M parameters) and the RoBERTa text encoder (125 M) with their projection layers, exported to
 one `.aimodel` with two entry points. `audio` takes a log-mel `[1, 1, 1001, 64]` — ten seconds
 at 48 kHz — and returns the projected embedding; `text` takes 77 token ids and an attention mask.
 The host normalises to unit length, as `get_audio_features` and `get_text_features` do.
 
-The front end is `ClapFeatureExtractor` for the music checkpoint, reproduced in `ClapFrontEnd`:
+The front end is `ClapFeatureExtractor` for the checkpoint, reproduced in `ClapFrontEnd`:
 48 kHz mono, a periodic Hann of 1024, hop 480, centred reflect padding, power spectrum, librosa's
 Slaney filterbank (64 bands, 50–14000 Hz, area-normalised) and `10·log10(max(1e-10, x))`. A clip
 shorter than ten seconds is tiled whole as many times as fits and zero-padded (`repeatpad`).
@@ -61,18 +61,21 @@ their zero-shot probabilities over twenty labels — and `swift test` compares:
 On an M3 Max the audio encoder takes about 0.3 s per ten-second window and the text encoder
 about 0.1 s per phrase, model load included in the first call.
 
-**One thing to know about this checkpoint:** its stored logit scale is 1.03 (the CLIP
-convention would be about 100), so the zero-shot softmax that upstream's pipeline reports is
-nearly flat — twenty labels come out around 0.05 each. `Tag.probability` reproduces that number
-faithfully; `Tag.score` (the cosine) is the one to rank and threshold by. The argmax is the same.
+**Why the general checkpoint and not `larger_clap_general`:** the music checkpoint's Hugging Face
+conversion is broken — in `transformers` itself every clip maps to nearly the same vector
+(audio–audio cosines 0.81–0.99 between a string loop, a kick and a full mix; every audio–text
+score 0.01–0.04; stored logit scale 1.03). The first export reproduced it to 147 dB and was
+useless. `larger_clap_general` (trained on general audio, music and speech; logit scale 38.7)
+puts a kick file at 0.49 against "a kick drum" and a string loop at 0.22 against "a string
+instrument", and `clap-htsat-unfused` behaves the same; the export takes either by `--name`.
 
 ## The model
 
-Not bundled (792 MB). Export it yourself from the Hugging Face weights, or download the export:
+Not bundled (797 MB). Export it yourself from the Hugging Face weights, or download the export:
 
 ```sh
-uv run Tools/export_clap.py --install          # from laion/larger_clap_music, with fixtures
-hf download arraypress/crate-clap-music --local-dir models
+uv run Tools/export_clap.py --install          # from laion/larger_clap_general, with fixtures
+hf download arraypress/crate-clap-general --local-dir models
 ```
 
 The command-line tool is [`crate`](https://github.com/arraypress/swift-crate-cli).

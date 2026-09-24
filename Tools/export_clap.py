@@ -2,7 +2,7 @@
 # requires-python = ">=3.11,<3.13"
 # dependencies = ["torch==2.13.0", "numpy", "coreai-torch==0.4.2", "coreai-core==1.0.0b2", "transformers", "soundfile", "librosa"]
 # ///
-"""CLAP (laion/larger_clap_music, Apache 2.0) → crate-clap-music-float32.aimodel, plus its tokenizer files.
+"""CLAP (laion/larger_clap_general, Apache 2.0) → crate-clap-general-float32.aimodel, plus its support files.
 
     uv run Tools/export_clap.py [--out Tools/exports] [--fixtures Tests/SampleSearchTests/Fixtures] [--install] [clip=path.wav …]
 
@@ -24,7 +24,8 @@ import coreai_torch
 from coreai.runtime import AIModelAssetMetadata
 HERE = Path(__file__).resolve().parent
 ap = argparse.ArgumentParser()
-ap.add_argument("--name", default="laion/larger_clap_music"); ap.add_argument("--out", default=str(HERE / "exports"))
+ap.add_argument("--name", default="laion/larger_clap_general", help="laion/larger_clap_general (default) or laion/clap-htsat-unfused; NOT larger_clap_music — its Hugging Face conversion is broken (every audio maps to nearly one vector, logit scale 1.03)")
+ap.add_argument("--asset", default="crate-clap-general-float32.aimodel"); ap.add_argument("--out", default=str(HERE / "exports"))
 ap.add_argument("--fixtures", default=str(HERE.parent / "Tests/SampleSearchTests/Fixtures")); ap.add_argument("--install", action="store_true")
 ap.add_argument("--max-tokens", type=int, default=77); ap.add_argument("clips", nargs="*", help="name=path.wav for audio fixtures")
 args = ap.parse_args()
@@ -102,7 +103,7 @@ meta.author = "LAION (Wu, Chen, Zhang, Hui, Berg-Kirkpatrick, Dubnov) — CLAP; 
 meta.license = "Apache-2.0"
 meta.model_description = f"CLAP {args.name}: audio = log-mel [1,1,1001,64] → embedding [1,512] (HTSAT + projection); text = RoBERTa ids [1,{T}] + mask → embedding [1,512]. L2-normalise in the host. Tokenizer files beside the asset."
 meta.creation_date = int(time.time())
-asset = out / "crate-clap-music-float32.aimodel"
+asset = out / args.asset
 if asset.exists(): shutil.rmtree(asset)
 program.save_asset(asset, meta)
 print(f"saved {asset} ({sum(f.stat().st_size for f in asset.rglob('*'))/1e6:.0f} MB) in {time.time()-t0:.0f} s", flush=True)

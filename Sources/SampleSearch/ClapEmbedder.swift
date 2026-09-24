@@ -17,10 +17,10 @@ import AVFoundation
 import CoreAI
 import Foundation
 
-/// Audio and text embeddings from `crate-clap-music-float32.aimodel`.
+/// Audio and text embeddings from `crate-clap-general-float32.aimodel`.
 public final class ClapEmbedder: @unchecked Sendable {
 
-    public static let assetName = "crate-clap-music-float32.aimodel"
+    public static let assetName = "crate-clap-general-float32.aimodel"
     /// `vocab.json`, `merges.txt` and `scales.json` beside the asset.
     public static let supportFolder = "clap-support"
     /// The text encoder's fixed length.

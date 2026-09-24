@@ -1,6 +1,6 @@
 # CLAUDE.md — swift-sample-search
 
-CLAP (`laion/larger_clap_music`) on Core AI: `ClapEmbedder` (audio and text
+CLAP (`laion/larger_clap_general`) on Core AI: `ClapEmbedder` (audio and text
 vectors), `ClapFrontEnd` (log-mel), `BytePairTokenizer` (RoBERTa BPE),
 `SampleIndex` (on-disk vectors, search/similar/tags). Module `SampleSearch`;
 the CLI is `../swift-crate-cli` (binary `crate`). Added 2026-09-24.
@@ -28,9 +28,14 @@ transformers 5.17, Python 3.12).
   drops frames, which shifts every repeat-pad tile and costs 100 dB.
 - **`rand_trunc` is random.** Audio over 10 s cannot match upstream; the
   library averages consecutive windows. Fixtures are ≤ 10 s on purpose.
-- **The checkpoint's logit scale is ~1** (`logit_scale_a` = 0.027 stored,
-  exp → 1.03), so upstream's zero-shot softmax is nearly flat. Report it as
-  is (`Tag.probability`, verified to 1e-8) but rank by cosine (`Tag.score`).
+- **`laion/larger_clap_general` on Hugging Face is BROKEN** — not the port.
+  In transformers itself every clip embeds to nearly one vector (audio–audio
+  0.81–0.99, audio–text 0.01–0.04, `logit_scale_a` 0.027 stored → exp 1.03).
+  The first export matched it to 147 dB and ranked 2,644 of 2,658 loops as
+  "a pad". The port uses `larger_clap_general` (logit scale 38.7, kick →
+  "a kick drum" 0.49); `clap-htsat-unfused` also works. Parity with a
+  checkpoint proves nothing about the checkpoint — sanity-check cross-modal
+  scores on real files before shipping any embedding model.
 - Slaney filterbank (`norm="slaney"`, `mel_scale="slaney"`) is the one the
   `rand_trunc` path uses; the htk bank in the extractor is for `fusion`.
 - Index dates are stored as `secondsSince1970` — ISO 8601 drops the fraction
