@@ -28,7 +28,7 @@ transformers 5.17, Python 3.12).
   drops frames, which shifts every repeat-pad tile and costs 100 dB.
 - **`rand_trunc` is random.** Audio over 10 s cannot match upstream; the
   library averages consecutive windows. Fixtures are ≤ 10 s on purpose.
-- **`laion/larger_clap_general` on Hugging Face is BROKEN** — not the port.
+- **`laion/larger_clap_music` on Hugging Face is BROKEN** — not the port.
   In transformers itself every clip embeds to nearly one vector (audio–audio
   0.81–0.99, audio–text 0.01–0.04, `logit_scale_a` 0.027 stored → exp 1.03).
   The first export matched it to 147 dB and ranked 2,644 of 2,658 loops as

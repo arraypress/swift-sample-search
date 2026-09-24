@@ -61,7 +61,7 @@ their zero-shot probabilities over twenty labels — and `swift test` compares:
 On an M3 Max the audio encoder takes about 0.3 s per ten-second window and the text encoder
 about 0.1 s per phrase, model load included in the first call.
 
-**Why the general checkpoint and not `larger_clap_general`:** the music checkpoint's Hugging Face
+**Why the general checkpoint and not `larger_clap_music`:** the music checkpoint's Hugging Face
 conversion is broken — in `transformers` itself every clip maps to nearly the same vector
 (audio–audio cosines 0.81–0.99 between a string loop, a kick and a full mix; every audio–text
 score 0.01–0.04; stored logit scale 1.03). The first export reproduced it to 147 dB and was
