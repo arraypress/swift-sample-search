@@ -54,9 +54,9 @@ their zero-shot probabilities over twenty labels — and `swift test` compares:
 |---|---|
 | Tokenizer, 20 phrases | ids and masks identical |
 | Log-mel, 3 clips (3.0 s, 3.8 s, 10.0 s) | 116–156 dB PSNR; max 0.013 dB on any bin |
-| Text embeddings, 20 phrases | 142 dB worst; cosine > 0.9999 |
-| Audio embeddings, 3 clips | 144–147 dB; cosine 0.99999+ |
-| Zero-shot probabilities, 20 labels | max difference 1e-8 |
+| Text embeddings, 20 phrases | 121 dB worst; cosine > 0.9999 |
+| Audio embeddings, 3 clips | 125–130 dB; cosine 0.99999+ |
+| Zero-shot probabilities, 20 labels | max difference 3e-6 |
 
 On an M3 Max the audio encoder takes about 0.3 s per ten-second window and the text encoder
 about 0.1 s per phrase, model load included in the first call.
