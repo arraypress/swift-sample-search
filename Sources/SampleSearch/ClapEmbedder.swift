@@ -151,12 +151,17 @@ public final class ClapEmbedder: @unchecked Sendable {
         let total = Int(file.length)
         let channels = Int(format.channelCount)
         guard total > 0, let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: 1 << 16) else { throw Error.emptyAudio }
-        // One read(into:) can return short of the file on some WAVs; read until the position reaches the length.
+        // One read(into:) can return short of the file on some WAVs, so read until the position
+        // reaches the length — and for a compressed file the length is an estimate, so a read
+        // that hits the true end (eofErr, −39) after samples have arrived is the end, not a failure.
         var mono = [Float]()
         mono.reserveCapacity(total)
         let scale = 1 / Float(channels)
         while file.framePosition < file.length {
-            try file.read(into: buffer, frameCount: buffer.frameCapacity)
+            do { try file.read(into: buffer, frameCount: buffer.frameCapacity) } catch {
+                if mono.isEmpty { throw Error.audioUnreadable("\(url.lastPathComponent): \(error.localizedDescription)") }
+                break
+            }
             let frames = Int(buffer.frameLength)
             guard frames > 0, let data = buffer.floatChannelData else { break }
             for i in 0..<frames {
